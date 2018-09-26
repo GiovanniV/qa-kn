@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+   <event name="customer_address_save_after">
+        <observer  name="Born_customer_address_save_after" instance="Born\Createxml\Observer\AfterAddressSaveObserver" />
+    </event>
+	 <event name="customer_register_success">
+        <observer  name="Born_customer_register_success" instance="Born\Createxml\Observer\Accountcreate" />
+    </event>
+	 <event name="customer_account_edited">
+        <observer  name="Born_customer_account_edited" instance="Born\Createxml\Observer\Accountedited" />
+    </event>
+	<event name="checkout_cart_product_add_after">
+        <observer name="addtocart_born" instance="Born\Createxml\Observer\Addtocartoberv" />
+    </event>
+	 <event name="checkout_onepage_controller_success_action">
+        <observer name="checkout_controller_success_action" instance="Born\Createxml\Observer\Afterplaceorder"  />
+    </event>
+</config>
