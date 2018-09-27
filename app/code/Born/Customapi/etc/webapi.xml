@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/Born/categories" method="GET">
+        <service class="Born\Customapi\Api\CategoryManagementInterface" method="getTree" />
+        <resources>
+            <resource ref="Magento_Catalog::categories" />
+        </resources>
+    </route>
+     <route url="/Born/products" method="POST">
+        <service class="Born\Customapi\Api\ProductManagementInterface" method="add" />
+        <resources>
+            <resource ref="Magento_Catalog::products" />
+        </resources>
+    </route>
+	    <route url="/V1/productsc" method="POST">
+        <service class="Magento\Catalog\Api\ProductRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Magento_Catalog::products" />
+        </resources>
+    </route>
+	
+    <route url="/Born/braintree/token" method="GET">
+        <service class="Born\Customapi\Api\BraintreeConfigProviderInterface" method="getClientToken" />
+        <resources>
+            <resource ref="Magento_Backend::admin" />
+        </resources>
+    </route>
+
+    <route url="/Born/me/vault/items" method="GET">
+        <service class="Born\Customapi\Model\PaymentTokenManagement" method="getListByCustomerId"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+
+    <route url="/Born/me/vault/nonce" method="GET">
+        <service class="Born\Customapi\Api\PaymentTokenManagementInterface" method="getPaymentNonce"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+</routes>
