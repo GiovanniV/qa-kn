@@ -19,10 +19,10 @@ class Index extends \Magento\Framework\App\Action\Action
   public function execute()
   {
 	         
-		 $response = $this->resultJsonFactory->create();
-
-       $products =json_decode(file_get_contents("php://input"),true);		
-	    
+		$response = $this->resultJsonFactory->create();
+  
+       $products =json_decode(file_get_contents("php://input"),true);	
+	    if(count($products)>0){
 	    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 		$fileSystem = $objectManager->create('\Magento\Framework\Filesystem');
         $mediaPath = $fileSystem->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::MEDIA)->getAbsolutePath();
@@ -128,11 +128,14 @@ class Index extends \Magento\Framework\App\Action\Action
         $msg=$exception->getMessage();	   
         }
 		
-		}
-       
-		return $response->setData($msg);
-    }
-  
+		}       
+		
+    }else{
+		
+		$msg='without post method';	 
+	}
+	return $response->setData($msg);
+  }
     public function addProduct()
     {
 		          
