@@ -116,7 +116,11 @@ class Batchproducts implements ProductManagementInterface
          );
 		if(file_exists($mediaPath.'import/'.$product['basimage'])){
 	    $newProduct->addImageToMediaGallery($mediaPath.'import/'.$product['basimage'], array('image', 'small_image', 'thumbnail'), false, false);
-		}		  
+		}else{
+         $this->downloadim($product['basimage'],$mediaPath);
+      	 $newProduct->addImageToMediaGallery($mediaPath.'import/'.$product['basimage'], array('image', 'small_image', 'thumbnail'), false, false);
+
+		}		
 		 
       if($product['attributes']!='')$newProduct->setAvailableInformation(str_replace(',','<br>',$product['attributes']));
         $newProduct->save();
@@ -154,5 +158,16 @@ class Batchproducts implements ProductManagementInterface
 	public function update()
     {
 		
+	}
+	public function downloadim($im,$mediaPath)
+	{
+	$ch = curl_init('http://kandn.com/images/l/'.$im);
+	$fp = fopen($mediaPath.'import/'.$im, 'wb');
+	curl_setopt($ch, CURLOPT_FILE, $fp);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	curl_exec($ch);
+	curl_close($ch);
+	fclose($fp);	
 	}
 }
