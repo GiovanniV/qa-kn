@@ -34,7 +34,7 @@ class Batchproducts implements ProductManagementInterface
 		foreach($products as $product){
 	    $newProduct= $objectManager->create('\Magento\Catalog\Model\Product');		
 		$cats=explode('/',$product['category_ids']);
-		$categy=array('Air Filter Set'=>3,'Oil Filter'=>4,'Air Cleaner Mount'=>5);
+		$categy=array('Air Filter Set'=>3,'Oil Filter'=>4,'Air Cleaner Mount'=>5,'Air Cleaner Mount'=>6,'Apparel - Other'=>7,'Fuel Filter'=>8,'Display Banner'=>9,'Air Cleaner Cover'=>8,'Other'=>8,'Air Filter'=>8,'Air Intake Hose'=>8,'Air Intake Hose Clamp'=>8,'Air Cleaner Mounting Gasket'=>9,'Air Intake Scoop'=>8,'Air Filter Wrap'=>8,'Air Cleaner Assembly'=>8,'Cold Air Intake Performance Kit'=>8,'Powersports Accessories'=>8,'Crankcase Breather Element'=>8,'Air Filter Cover Assembly'=>8,'Air Filter Cover Assembly'=>8,'Jet Kit'=>8,'Catalogs and Promotional Materials'=>8,'Air Filter Cleaner'=>8,'Cabin Air Filter'=>8);
 		try
 		{
         $newProduct->setSku($product['sku'] );
@@ -45,6 +45,13 @@ class Batchproducts implements ProductManagementInterface
 		if($product['weight']!='')$newProduct->setWeight($product['weight'] );
         if($product['status']!='')$newProduct->setStatus($product['status'] );
 		if($product['short_description']!='')$newProduct->setShortDescription($product['short_description'] );
+		if($product['product_box_height']!='')$newProduct->setproductBoxHeight($product['product_box_height'] );
+		if($product['product_box_length']!='')$newProduct->setproductBoxLength($product['product_box_length'] );
+		if($product['product_box_width']!='')$newProduct->setProductBoxWidth($product['product_box_width'] );
+		if($product['product_style']!='')$newProduct->setProductStyle($product['product_style'] );
+		if($product['filter_re_oiling_amount']!='')$newProduct->setPackageContents($product['filter_re_oiling_amount'] );
+		if($product['package_contents']!='')$newProduct->setShortDescription($product['package_contents'] );
+		if($product['height']!='')$newProduct->setHeight($product['height'] );
 		
 		if($product['model']!=''){
 		$attribute = $newProduct->getResource()->getAttribute('model');

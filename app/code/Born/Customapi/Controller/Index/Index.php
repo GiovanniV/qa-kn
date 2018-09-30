@@ -30,7 +30,7 @@ class Index extends \Magento\Framework\App\Action\Action
 		foreach($products as $product){
 	    $newProduct= $objectManager->create('\Magento\Catalog\Model\Product');		
 		$cats=explode('/',$product['category_ids']);
-		$categy=array('Air Filter Set'=>3,'Oil Filter'=>4,'Air Cleaner Mount'=>5);
+		$categy=array('Air Filter Set'=>6,'Oil Filter'=>7,'Air Cleaner Mount'=>5,'Air Cleaner Mount'=>6,'Apparel - Other'=>8,'Fuel Filter'=>9,'Display Banner'=>10,'Air Cleaner Cover'=>11,'Other'=>12,'Air Filter'=>3,'Air Intake Hose'=>13,'Air Intake Hose Clamp'=>14,'Air Cleaner Mounting Gasket'=>15,'Air Intake Scoop'=>16,'Air Filter Wrap'=>17,'Air Cleaner Assembly'=>18,'Cold Air Intake Performance Kit'=>19,'Powersports Accessories'=>20,'Crankcase Breather Element'=>21,'Air Filter Cover Assembly'=>22,'Jet Kit'=>23,'Catalogs and Promotional Materials'=>8,'Air Filter Cleaner'=>24,'Cabin Air Filter'=>25,'air intake'=>4);				
 		try
 		{
         $newProduct->setSku($product['sku'] );
@@ -41,7 +41,13 @@ class Index extends \Magento\Framework\App\Action\Action
 		if($product['weight']!='')$newProduct->setWeight($product['weight'] );
         if($product['status']!='')$newProduct->setStatus($product['status'] );
 		if($product['short_description']!='')$newProduct->setShortDescription($product['short_description'] );
-		
+		if($product['product_box_height']!='')$newProduct->setproductBoxHeight($product['product_box_height'] );
+		if($product['product_box_length']!='')$newProduct->setproductBoxLength($product['product_box_length'] );
+		if($product['product_box_width']!='')$newProduct->setProductBoxWidth($product['product_box_width'] );
+		if($product['product_style']!='')$newProduct->setProductStyle($product['product_style'] );
+		if($product['filter_re_oiling_amount']!='')$newProduct->setPackageContents($product['filter_re_oiling_amount'] );
+		if($product['package_contents']!='')$newProduct->setShortDescription($product['package_contents'] );
+		if($product['height']!='')$newProduct->setHeight($product['height'] );
 		if($product['model']!=''){
 		$attribute = $newProduct->getResource()->getAttribute('model');
 		 if ($attribute->usesSource()) {
@@ -134,7 +140,7 @@ class Index extends \Magento\Framework\App\Action\Action
 		
 		$msg='without post method';	 
 	}
-	return $response->setData($msg);
+	return $response->setData($msg);die;
   }
     public function addProduct()
     {
