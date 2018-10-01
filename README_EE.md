@@ -34,7 +34,7 @@ This script works in two ways:
 
 Normally you should link CE and EE; however, you can unlink to update code from the repositories for example.
 
-**Examples**
+**Examples  change for testgit **
 
 Link with creating the exclude file:
 ```

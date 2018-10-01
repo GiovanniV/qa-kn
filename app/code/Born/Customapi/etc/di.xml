@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="Born\Customapi\Api\CategoryManagementInterface" type="Born\Customapi\Model\CategoryManagement"></preference>
-    <preference for="Born\Customapi\Api\BraintreeConfigProviderInterface" type="Born\Customapi\Model\Braintree\Ui\ConfigProvider"></preference>
-    <preference for="Born\Customapi\Api\PaymentTokenManagementInterface" type="Born\Customapi\Model\PaymentTokenManagement"></preference>
-    <preference for="Born\Customapi\Api\ProductManagementInterface" type="Born\Customapi\Model\Batchproducts" />
-
-</config>
