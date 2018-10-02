@@ -31,10 +31,11 @@ class Batchproducts implements ProductManagementInterface
 		foreach($products as $product){		
 	    $flag=0;		
 		try {
-		$newProduct = $this->producteRepository->get($product['sku'], true);
+		$get_productid = $objectManager->create('\Magento\Catalog\Model\Product')->getIdBySku($product['sku']);
+	    $newProduct = $objectManager->create('\Magento\Catalog\Model\Product')->load($get_productid);
 		$flag=1;
 		} catch (\Exception $e) {
-		$newProduct= $this->_product;
+		$newProduct=$objectManager->create('\Magento\Catalog\Model\Product');
 		$flag=0;
 		}
 		//return 'dddd='.$flag;
@@ -219,7 +220,7 @@ class Batchproducts implements ProductManagementInterface
 		}		
 		 
       if($product['attributes']!='')$newProduct->setAvailableInformation(str_replace(',','<br>',$product['attributes']));
-        $this->producteRepository->save($newProduct);       
+        $newProduct->save();        
 		 if($flag==0){
 			$msg="inserted simple product id :: ". $newProduct->getId()."\n"; 
 		 }else{
