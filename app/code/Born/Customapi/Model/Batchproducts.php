@@ -219,7 +219,7 @@ class Batchproducts implements ProductManagementInterface
 		}		
 		 
       if($product['attributes']!='')$newProduct->setAvailableInformation(str_replace(',','<br>',$product['attributes']));
-        $newProduct->save();        
+        $this->producteRepository->save($newProduct);       
 		 if($flag==0){
 			$msg="inserted simple product id :: ". $newProduct->getId()."\n"; 
 		 }else{
