@@ -22,226 +22,343 @@ class Index extends \Magento\Framework\App\Action\Action
   {
 	         
 		$response = $this->resultJsonFactory->create();  
-       $products =json_decode(file_get_contents("php://input"),true);	
+		$products =json_decode(file_get_contents("php://input"),true);	
+	    $msg=array();
 	    if(count($products)>0){
 	    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 		$fileSystem = $objectManager->create('\Magento\Framework\Filesystem');
         $mediaPath = $fileSystem->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::MEDIA)->getAbsolutePath();
 		$newProductId=array();
-			foreach($products as $product){		
+		foreach($products as $key=>$product){		
 	    $flag=0;		
 		try {
-		$get_productid = $objectManager->create('\Magento\Catalog\Model\Product')->getIdBySku($product['sku']);
-	    $newProduct = $objectManager->create('\Magento\Catalog\Model\Product')->load($get_productid);
+		$newProduct = $this->producteRepository->get($product['sku'], true);
 		$flag=1;
 		} catch (\Exception $e) {
 		$newProduct=$objectManager->create('\Magento\Catalog\Model\Product');
 		$flag=0;
 		}
+		$keys = array_keys($product);
 		//return 'dddd='.$flag;
-		$cats=explode('/',$product['category_ids']);
+		
+		if (in_array("categories", $keys))$cats=explode('/',$product['categories']);
+		
 		$categy=array('Air Filter Set'=>3,'Oil Filter'=>4,'Air Cleaner Mount'=>5,'Air Cleaner Mount'=>6,'Apparel - Other'=>7,'Fuel Filter'=>8,'Display Banner'=>9,'Air Cleaner Cover'=>8,'Other'=>8,'Air Filter'=>8,'Air Intake Hose'=>8,'Air Intake Hose Clamp'=>8,'Air Cleaner Mounting Gasket'=>9,'Air Intake Scoop'=>8,'Air Filter Wrap'=>8,'Air Cleaner Assembly'=>8,'Cold Air Intake Performance Kit'=>8,'Powersports Accessories'=>8,'Crankcase Breather Element'=>8,'Air Filter Cover Assembly'=>8,'Air Filter Cover Assembly'=>8,'Jet Kit'=>8,'Catalogs and Promotional Materials'=>8,'Air Filter Cleaner'=>8,'Cabin Air Filter'=>8);
 		try
 		{
-        $newProduct->setSku($product['sku']);
-        $newProduct->setName( $product['name'] );
-		$newProduct->setPrice($product['price'] );
-		if($product['description']!='')$newProduct->setDescription( $product['description'] ); 
-        if($flag==0){		
-        if($product['url']!='')  $newProduct->setUrlKey( $product['url'] );	
+       
+		
+        if($flag==0){      		
+		$newProduct->setUrlKey($this->format_uri('K&N '.$product['sku'].' '.$product['name']));	
 		}		
-		if($product['weight']!='')$newProduct->setWeight($product['weight'] );
-        if($product['status']!='')$newProduct->setStatus($product['status'] );
-		if($product['short_description']!='')$newProduct->setShortDescription($product['short_description'] );
-		if($product['product_box_height']!='')$newProduct->setproductBoxHeight($product['product_box_height'] );
-		if($product['product_box_length']!='')$newProduct->setproductBoxLength($product['product_box_length'] );
-		if($product['product_box_width']!='')$newProduct->setProductBoxWidth($product['product_box_width'] );
-		if($product['product_style']!='')$newProduct->setProductStyle($product['product_style'] );
-		if($product['filter_re_oiling_amount']!='')$newProduct->setPackageContents($product['filter_re_oiling_amount'] );
-		if($product['package_contents']!='')$newProduct->setShortDescription($product['package_contents'] );
-		if($product['height']!='')$newProduct->setHeight($product['height'] );
-		if($product['attributes']!='')$newProduct->setAvailableInformation($product['attributes']);
-		if($product['model']!=''){
-			$optionId=array();
-		foreach($product['model'] as $model){
-		$optionIds=$this->getSelectedAttributes('model', $model);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('model', array(array('value'=>$model),));
-		$optionId[]=$this->getSelectedAttributes('model', $model);
-		}else{
-		$optionId[]=$optionIds;	
-		}
-		}
-		$newProduct->setModel($optionId);
-		
-		}
-		if($product['material']!=''){
-		$optionId=$this->getSelectedAttributes('filter_material', $product['material']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('filter_material', array(array('value'=>$product['material']),));
-		$optionId=$this->getSelectedAttributes('filter_material', $product['material']);
-		}
-		$newProduct->setFilterMaterial($optionId);
-		
-		}
-		if(count($product['engine_size'])>0){
-		$optionId=array();
-		foreach($product['engine_size'] as $size){		
-		$optionIds=$this->getSelectedAttributes('engine_size', $size);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('engine_size', array(array('value'=>$size),));
-		$optionId[]=$this->getSelectedAttributes('engine_size', $size);
-		}else{
-		$optionId[]=$optionIds;	
-		}
-		}
-		$newProduct->setEngineSize($optionId);		
-		}
-		
-		if(count($product['year_of_vehicle'])>0){
-		$optionId=array();
-		foreach($product['year_of_vehicle'] as $vehicle){
-		$optionIds=$this->getSelectedAttributes('year_of_vehicle', $vehicle);
-		if(count($optionIds)==1){
-		$this->insertAttributeOptions('year_of_vehicle', array(array('value'=>$vehicle),));
-		$optionId[]=$this->getSelectedAttributes('year_of_vehicle', $vehicle);
-		}else{
-		$optionId[]=$optionIds;	
-		}
-		}
-		$newProduct->setYearOfVehicle($optionId);		
-		}
+	
+		if (in_array("categories", $keys))$newProduct->setPrice($product['price'] );
+		if (in_array("sku", $keys)) $newProduct->setSku($product['sku']);
+		if (in_array("name", $keys))$newProduct->setName('K&N '.$product['sku'].' '.$product['name']);
+		if (in_array("attribute_set_code", $keys))$newProduct->setAttributeSetId(4);
+		if (in_array("categories", $keys)) $newProduct->setCategoryIds(array(2,$categy[$cats[1]])); 
+		if (in_array("description", $keys))$newProduct->setDescription($product['description'] ); 
+		if (in_array("short_description", $keys))$newProduct->setShortDescription($product['short_description'] );
+		if (in_array("weight", $keys))$newProduct->setWeight($product['weight']);
+		if (in_array("product_online", $keys))$newProduct->setStatus($product['product_online']);
+		if (in_array("tax_class_name", $keys))$newProduct->setTaxClassId(2);
+		if (in_array("visibility", $keys))$newProduct->setAttributeSetId(4);
+		if (in_array("special_price", $keys))$newProduct->setSpecialPrice($product['special_price']);
+		if (in_array("special_price_from_date", $keys))$newProduct->setSpecialPriceFromDate($product['special_price_from_date']);
+		if (in_array("special_price_to_date", $keys))$newProduct->setSpecialPriceToDate($product['special_price_to_date']);	
+		if (in_array("meta_title", $keys))$newProduct->setMetaTitle($product['meta_title']);
+		if (in_array("meta_keywords", $keys))$newProduct->setMetaKeyword($product['meta_keywords']);
+		if (in_array("meta_description", $keys))$newProduct->setMetaDescription($product['meta_description']);
+	   if (in_array("base_image", $keys)){
+		  if($flag==0){
+		  //in case of add product going
+		if(file_exists($mediaPath.'import/'.$product['base_image'])){
 			
-		if(count($product['make'])>0){
-			$optionId=array();
-		foreach($product['make'] as $make){
-		$optionIds=$this->getSelectedAttributes('make', $make);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('make', array(array('value'=>$make),));
-		$optionId[]=$this->getSelectedAttributes('make', $make);
+		$newProduct->setMediaGallery(array('images' => array(), 'values' => array()));
+		 $newProduct->setMediaGallery(array('images' => array(), 'values' => array()));
+	    $newProduct->addImageToMediaGallery($mediaPath.'import/'.$product['base_image'], array('image', 'small_image', 'thumbnail'), false, false);
 		}else{
-		$optionId[]=$optionIds;	
-		}
-		}
-		$newProduct->setMake($optionId);		
-		}
-		if($product['vehicle_type']!=''){
-		$optionId=$this->getSelectedAttributes('vehicle_type', $product['vehicle_type']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('vehicle_type', array(array('value'=>$product['vehicle_type']),));
-		$optionId=$this->getSelectedAttributes('vehicle_type', $product['vehicle_type']);
-		}
-		$newProduct->setVehicleType($optionId);
-		}
-		if($product['oversize_shipping']!=''){
-		$optionId=$this->getSelectedAttributes('oversize_shipping', $product['oversize_shipping']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('oversize_shipping', array(array('value'=>$product['oversize_shipping']),));
-		$optionId=$this->getSelectedAttributes('oversize_shipping', $product['oversize_shipping']);
-		}
-		$newProduct->setOversizeShipping($optionId);
-		}
-		if($product['finish']!=''){
-		$optionId=$this->getSelectedAttributes('finish', $product['finish']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('finish', array(array('value'=>$product['finish']),));
-		$optionId=$this->getSelectedAttributes('finish', $product['finish']);
-		}
-		$newProduct->setFinish($optionId);
+         $this->downloadim($product['base_image'],$mediaPath);
+		 $newProduct->setMediaGallery(array('images' => array(), 'values' => array()));
+      	 $newProduct->addImageToMediaGallery($mediaPath.'import/'.$product['base_image'], array('image', 'small_image', 'thumbnail'), false, false);
+
+		}	
+		 }
+			
 		}
 		
-		if($product['air_filter_shape']!=''){
-		$optionId=$this->getSelectedAttributes('air_filter_shape', $product['air_filter_shape']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('air_filter_shape', array(array('value'=>$product['air_filter_shape']),));
-		$optionId=$this->getSelectedAttributes('air_filter_shape', $product['air_filter_shape']);
-		}
-		$newProduct->setAirFilterShape($optionId);
-		}
-		if($product['color']!=''){
-		$optionId=$this->getSelectedAttributes('color', $product['color']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('color', array(array('value'=>$product['color']),));
-		$optionId=$this->getSelectedAttributes('color', $product['color']);
-		}
-		$newProduct->setColor($optionId);
-		}if($product['material_used']!=''){
-		$optionId=$this->getSelectedAttributes('material_used', $product['material_used']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('material_used', array(array('value'=>$product['material_used']),));
-		$optionId=$this->getSelectedAttributes('material_used', $product['material_used']);
-		}
-		$newProduct->setMaterialUsed($optionId);
-		}if($product['style']!=''){
-		$optionId=$this->getSelectedAttributes('style', $product['style']);
-		if(count($optionId)==1){
-		$this->insertAttributeOptions('finish', array(array('value'=>$product['style']),));
-		$optionId=$this->getSelectedAttributes('style', $product['style']);
-		}
-		$newProduct->setStyle($optionId);
-		}
-		
-		if($product['location']!=''){
+	  if (in_array("new_from_date", $keys))$newProduct->setNewFromDate($product['new_from_date']);
+      if (in_array("country_of_manufacture", $keys))
+		{
 		$attribute = $newProduct->getResource()->getAttribute('country_of_manufacture');
 		 if ($attribute->usesSource()) {
-		 $option_id = $attribute->getSource()->getOptionId($product['location']);
+		 $option_id = $attribute->getSource()->getOptionId($product['country_of_manufacture']);
 		 $newProduct->setCountryOfManufacture($option_id);
-		 }
+		 }	
+			
 		}
+		$newProduct->setWebsiteIds(array(1));
 		$newProduct->setAttributeSetId(4);
-        if($product['type_id']!='')$newProduct->setTypeId($product['type_id'] ); 
-		if($product['category_ids']!='')$newProduct->setCategoryIds(array(2,$categy[$cats[1]])); 
-		if($product['website_ids']!='')$newProduct->setWebsiteIds(array($product['website_ids']));
-		if($product['meta_title']!='')$newProduct->setMetaTitle($product['meta_title']);
-		if($product['meta_keywords']!='')$newProduct->setMetaKeyword($product['meta_keywords']);
-		if($product['meta_description']!='')$newProduct->setMetaDescription($product['meta_description']);		
-		if($product['special_price']!='')$newProduct->setSpecialPrice($product['special_price']);	
-		if($product['special_price_from_date']!='')$newProduct->setSpecialPriceFromDate($product['special_price_from_date']);	
-		if($product['special_price_to_date']!='')$newProduct->setSpecialPriceToDate($product['special_price_to_date']);	
+		$newProduct->setVisibility(4);		
+        $newProduct->setTypeId('simple'); 
+		$qty=0;
+		$is_inst=0;
+	if (in_array("qty", $keys))$qty=$product['qty'];
+	if (in_array("is_in_stock", $keys))	$is_inst=$product['is_in_stock'];
 		$newProduct->setStockData(
         array(
         'use_config_manage_stock' => 0, 
         // checkbox for 'Use config settings' 
-        'manage_stock' => $product['stock_data']['manage_stock'], // manage stock
+        'manage_stock' => 1, // manage stock
         'min_sale_qty' => 1, // Shopping Cart Minimum Qty Allowed 
-        'max_sale_qty' => $product['stock_data']['max_sale_qty'], // Shopping Cart Maximum Qty Allowed
-        'is_in_stock' => $product['stock_data']['is_in_stock'], // Stock Availability of product
-        'qty' => $product['stock_data']['qty'] // qty of product
+        'max_sale_qty' => 1000, // Shopping Cart Maximum Qty Allowed
+        'is_in_stock' => $is_inst, // Stock Availability of product
+        'qty' => $qty // qty of product
          )
          );
-		if(file_exists($mediaPath.'import/'.$product['basimage'])){
-		$newProduct->setMediaGallery(array('images' => array(), 'values' => array()));
-	    $newProduct->addImageToMediaGallery($mediaPath.'import/'.$product['basimage'], array('image', 'small_image', 'thumbnail'), false, false);
+		 $optionSize=array();
+		 $optionyear_of_vehiclee=array();
+		 $optionmodel=array();
+		 $optionmake=array();
+		 $material='';
+		$vehicle_type='';
+		$oversize_shipping='';
+		$finish='';
+		$air_filter_shape='';
+		$color='';
+		$style='';
+		$material_used='';
+		$extra=array();
+		 if(in_array("additional_attributes", $keys)){	
+		 if(count($product['additional_attributes'])>0){
+		$additional_attributes=explode(',',str_replace('"','',$product['additional_attributes']));
+		$warranty='';
+		$warrantycode='';
+		$warrantyval='';
+		
+		foreach($additional_attributes as $attributes)		{
+		$attribute=explode('=',$attributes);
+		
+		if(count($attribute)>1)
+		{			 
+	    if($attribute[0]=='Warranty'){
+		$warrantylevel=$attribute[0];
+		$warrantyval=$attribute[1];}
+		elseif($this->formatcode($attribute[0])=='product_box_height'){
+		$newProduct->setProductBoxHeight($attribute[1]);
+		}
+		elseif($this->formatcode($attribute[0])=='product_box_length'){
+		$newProduct->setProductBoxLength($attribute[1]);
+		}
+		elseif($this->formatcode($attribute[0])=='product_box_width'){
+		$newProduct->setProductBoxWidth($attribute[1]);
+		}
+		elseif($this->formatcode($attribute[0])=='product_style'){
+		$newProduct->setProductStyle($attribute[1]);
+		}
+		elseif($this->formatcode($attribute[0])=='package_contents'){
+		//	echo $attribute[1]; die;
+		$newProduct->setPackageContents($attribute[1]);
+		}
+		elseif($this->formatcode($attribute[0])=='height'){
+		$newProduct->setHeight($attribute[1]);
+		}
+		elseif($this->formatcode($attribute[0])=='engine_size'){		
+		$optionSize[]=$attribute[1];
+		}
+		
+		elseif($this->formatcode($attribute[0])=='year_of_vehicle'){		
+		$optionyear_of_vehiclee[]=$attribute[1];
+		}
+		elseif($this->formatcode($attribute[0])=='make'){		
+		$optionmake[]=$attribute[1];
+		}
+		elseif($this->formatcode($attribute[0])=='model'){		
+		$optionmodel[]=$attribute[1];
+		}
+		elseif($this->formatcode($attribute[0])=='material'){		
+		$material=$attribute[1];
+		}
+	   elseif($this->formatcode($attribute[0])=='vehicle_type'){		
+		$vehicle_type=$attribute[1];
+		}
+      elseif($this->formatcode($attribute[0])=='oversize_shipping'){		
+		$oversize_shipping=$attribute[1];
+		}
+	   elseif($this->formatcode($attribute[0])=='finish'){		
+		$finish=$attribute[1];
+		}
+	 elseif($this->formatcode($attribute[0])=='air_filter_shape'){		
+		$air_filter_shape=$attribute[1];
+		}
+	elseif($this->formatcode($attribute[0])=='color'){		
+		$color=$attribute[1];
+		}
+	elseif($this->formatcode($attribute[0])=='material_used'){		
+		$material_used=$attribute[1];
+		}
+	   elseif($this->formatcode($attribute[0])=='style'){		
+		$style=$attribute[1];
 		}else{
-         $this->downloadim($product['basimage'],$mediaPath);
-		 $newProduct->setMediaGallery(array('images' => array(), 'values' => array()));
-      	 $newProduct->addImageToMediaGallery($mediaPath.'import/'.$product['basimage'], array('image', 'small_image', 'thumbnail'), false, false);
+	  $extra[]=array($this->formatcode($attribute[0]),$attribute[0],$attribute[1]);
+		}
+	    		
+		}else{
+			
+		$warranty.=','.$attribute[0];
+						
+		}
+			
+		}
+		
+		$newProduct->setWarranty(addslashes($warrantyval.$warranty));
+					
+		 }
+			
+		}
+		//echo "<pre>"; print_r($extra);die;
+		if(count($optionSize)>0){
+		$optionId=array();
+		foreach($optionSize as $size){		
+		$this->insertAttributeOptions('engine_size', array(array('value'=>$size),));
+		$optionId[]=$this->getSelectedAttributes('engine_size', $size);
+		
+		}
+		$newProduct->setEngineSize($optionId);		
+		}
+		if(count($optionmodel)>0){
+			$optionId=array();
+		foreach($optionmodel as $model){
+		
+		$this->insertAttributeOptions('model', array(array('value'=>$model),));
+		$optionId[]=$this->getSelectedAttributes('model', $model);
+		
+		}
+		$newProduct->setModel($optionId);
+		
+		}
+		
+		if(count($optionmake)>0){
+			$optionId=array();
+		foreach($optionmake as $make){
+		
+		$this->insertAttributeOptions('make', array(array('value'=>$make),));
+		$optionId[]=$this->getSelectedAttributes('make', $make);
+		
+		}
+		$newProduct->setMake($optionId);
+		
+		}
+		
+		if(count($optionyear_of_vehiclee)>0){
+			$optionId=array();
+		foreach($optionyear_of_vehiclee as $vehicle){
+		
+		$this->insertAttributeOptions('year_of_vehicle', array(array('value'=>$vehicle),));
+		$optionId[]=$this->getSelectedAttributes('year_of_vehicle', $vehicle);
+		
+		}
+		$newProduct->setYearOfVehicle($optionId);
+		
+		}
+		
+       if($material!=''){
+		$this->insertAttributeOptions('filter_material', array(array('value'=>$material),));
+		$optionId=$this->getSelectedAttributes('filter_material', $material);
+		$newProduct->setFilterMaterial($optionId);
+		
+		}	
+	
+		if($vehicle_type!=''){
+	
+		$this->insertAttributeOptions('vehicle_type', array(array('value'=>$vehicle_type),));
+		$optionId=$this->getSelectedAttributes('vehicle_type', $vehicle_type);
+		
+		$newProduct->setVehicleType($optionId);
+		}
+		if($oversize_shipping!=''){
+		$this->insertAttributeOptions('oversize_shipping', array(array('value'=>$oversize_shipping),));
+		$optionId=$this->getSelectedAttributes('oversize_shipping', $oversize_shipping);
+		
+		$newProduct->setOversizeShipping($optionId);
+		}
+		if($finish!=''){
+	
+		$this->insertAttributeOptions('finish', array(array('value'=>$finish),));
+		$optionId=$this->getSelectedAttributes('finish', $finish);
+		
+		$newProduct->setFinish($optionId);
+		}
+		
+		if($air_filter_shape!=''){
+	
+		$this->insertAttributeOptions('air_filter_shape', array(array('value'=>$air_filter_shape),));
+		$optionId=$this->getSelectedAttributes('air_filter_shape', $air_filter_shape);
+		
+		$newProduct->setAirFilterShape($optionId);
+		}
+		if($color!=''){	
+		$this->insertAttributeOptions('color', array(array('value'=>$color),));
+		$optionId=$this->getSelectedAttributes('color', $color);
+		
+		$newProduct->setColor($optionId);
+		}
+		if($material_used!=''){
+	
+		$this->insertAttributeOptions('material_used', array(array('value'=>$material_used),));
+		$optionId=$this->getSelectedAttributes('material_used', $material_used);
+		
+		$newProduct->setMaterialUsed($optionId);
+		}if($style!=''){
 
+		$this->insertAttributeOptions('style', array(array('value'=>$style),));
+		$optionId=$this->getSelectedAttributes('style', $style);
+		
+		$newProduct->setStyle($optionId);
 		}		
 		 
-      if($product['attributes']!='')$newProduct->setAvailableInformation(str_replace(',','<br>',$product['attributes']));
-        $newProduct->save();        
+      if (in_array("additional_attributes", $keys))$newProduct->setAvailableInformation(str_replace(',','<br>',$product['additional_attributes']));
+       // $newProduct->save();     
+        $newProduct->save();
+		foreach($extra as $field){
+		$this->createattributesbycust($objectManager,$field[1],'text');		
+	    $this->updateval($newProduct->getId(),$field[0],$field[2],$objectManager);		
+
+		}
+		
+		
+		
 		 if($flag==0){
-			$msg="inserted simple product id :: ". $newProduct->getId()."\n"; 
+		  $msg[]="inserted simple product id :: ". $newProduct->getId()."\n"; 
 		 }else{
-	      $msg="update simple product id :: ". $newProduct->getId()."\n"; 		 
+	      $msg[]="update simple product id :: ". $newProduct->getId()."\n"; 		 
 		}
 		unset($newProduct);
 		}
 		catch(Exception $exception) 
 		{
-        $msg=$exception->getMessage();	   
+        $msg[]=$exception->getMessage();	   
         }
 		
 		}     
 		
     }else{
 		
-		$msg='you cant access it';	 
+		$msg[]='you cant access it';	 
 	}
-	return $response->setData($msg);die;
+	
+	
+	return $response->setData(json_encode($msg));die;
   }
-   
+   public function updateval($newProduct,$attr,$val,$objectManager)
+   {
+	   
+	    $array_product = [$newProduct]; //product Ids
+		$productActionObject = $objectManager ->create('Magento\Catalog\Model\Product\Action');
+		$productActionObject->updateAttributes($array_product, array($attr => $val), 0);
+	   
+	   
+   }
 	public function update()
     {
 		
@@ -310,5 +427,65 @@ public function getSelectedAttributes($code, $list) {
         }
     } return $options;
 }
+
+public function format_uri($string, $separator = '-' )
+{
+    $accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
+    $special_cases = array( '&' => 'and', "'" => '');
+    $string = mb_strtolower( trim( $string ), 'UTF-8' );
+    $string = str_replace( array_keys($special_cases), array_values( $special_cases), $string );
+    $string = preg_replace( $accents_regex, '$1', htmlentities( $string, ENT_QUOTES, 'UTF-8' ) );
+    $string = preg_replace("/[^a-z0-9]/u", "$separator", $string);
+    $string = preg_replace("/[$separator]+/u", "$separator", $string);
+    return $string;
+} 
+
+public function createattributesbycust($objectManager,$val,$type='text')
+{
+$eavSetupFactory = $objectManager->create('Magento\Eav\Setup\EavSetupFactory');
+$setup = $objectManager->create('Magento\Framework\Setup\ModuleDataSetupInterface');
+$eavSetup = $eavSetupFactory->create(['setup' => $setup]);
+
+$attr = $eavSetup->getAttribute(\Magento\Catalog\Model\Product::ENTITY, $this->formatcode($val));
+if(count($attr)==0){
+	$eavSetup->addAttribute(
+					\Magento\Catalog\Model\Product::ENTITY, $this->formatcode($val), // attribute code
+					[
+						'group' => 'Product Specifications',
+						'type' => 'varchar',
+						'backend' => '',
+						'frontend' => '',
+						'label' => $val, // label
+						'input' => $type,
+						'class' => '',
+						'source' => '',
+						'global' => 1,
+						'visible' => true,
+						'required' => false,
+						'user_defined' => false,
+						'default' => 0,
+						'searchable' => false,
+						'filterable' => true,
+						'comparable' => true,
+						'visible_on_front' => true,
+						'used_in_product_listing' => true,
+						'unique' => false,
+						'apply_to' => '',
+						'attribute_set_id'=>4
+					]
+				);	
+}
+}
+public function formatcode($string, $separator = '_' )
+{
+    $accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
+    $special_cases = array( '&' => 'and', "'" => '');
+    $string = mb_strtolower( trim( $string ), 'UTF-8' );
+    $string = str_replace( array_keys($special_cases), array_values( $special_cases), $string );
+    $string = preg_replace( $accents_regex, '$1', htmlentities( $string, ENT_QUOTES, 'UTF-8' ) );
+    $string = preg_replace("/[^a-z0-9]/u", "$separator", $string);
+    $string = preg_replace("/[$separator]+/u", "$separator", $string);
+    return $string;
+} 
 }
 
