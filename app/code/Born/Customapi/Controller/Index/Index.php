@@ -22,10 +22,11 @@ class Index extends \Magento\Framework\App\Action\Action
   {
 	         
 		$response = $this->resultJsonFactory->create();  
-		$xml =json_decode(json_encode(simplexml_load_string(file_get_contents("php://input"))),TRUE);	
+		//$xml =json_decode(json_encode(simplexml_load_string(file_get_contents("php://input"))),TRUE);	
+		$products =json_decode(file_get_contents("php://input"),true);		
 	    $msg=array();
-	     if(count($xml)>0){
-		$products=$xml['products_row'];
+	     if(count($products)>0){
+		//$products=$xml['products_row'];
 	    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 		$fileSystem = $objectManager->create('\Magento\Framework\Filesystem');
         $mediaPath = $fileSystem->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::MEDIA)->getAbsolutePath();
